@@ -4,6 +4,8 @@
 #include <shlobj.h>     // For SHChangeNotify
 #include <new>
 
+#include "log.h"
+
 extern HRESULT CHEICThumbProvider_CreateInstance(REFIID riid, void** ppv);
 
 #define SZ_CLSID_HEICTHUMBHANDLER     L"{2c93d534-2a1f-40d2-a375-babc92996987}"
@@ -37,6 +39,41 @@ STDAPI_(BOOL) DllMain(HINSTANCE hInstance, DWORD dwReason, void*)
     {
         g_hInst = hInstance;
         DisableThreadLibraryCalls(hInstance);
+
+        Log_Open(L"HEICThumbProvider");
+
+        DWORD dwLevel = LOG_NONE;
+
+        HKEY hk = 0;
+        HRESULT hr = HRESULT_FROM_WIN32(RegOpenKeyEx(HKEY_CURRENT_USER, 
+            L"Software\\Classes\\CLSID\\" SZ_CLSID_HEICTHUMBHANDLER, 
+            0, KEY_QUERY_VALUE, &hk));
+        //Log_WriteFmt(LOG_NONE, L"RegOpenKeyEx: 0x%08x", hr);
+        if (SUCCEEDED(hr))
+        {
+
+            DWORD dwType = 0;
+            DWORD dwSize = sizeof(DWORD);
+            hr = HRESULT_FROM_WIN32(RegQueryValueEx(hk, L"LogLevel", 0, &dwType, (LPBYTE) &dwLevel, &dwSize));
+            //Log_WriteFmt(LOG_NONE, L"RegQueryValueEx: 0x%08x", hr);
+            if (SUCCEEDED(hr))
+            {
+                if (dwType == REG_DWORD && 
+                    dwLevel >= LOG_NONE && 
+                    dwLevel < LOG_MAX)
+                {
+                    Log_SetLevel((LOG_LEVEL)dwLevel);
+                }
+            }
+
+            RegCloseKey(hk);
+        }
+
+        //Log_WriteFmt(LOG_NONE, L"LogLevel: %u", dwLevel);
+    }
+    else if (dwReason == DLL_PROCESS_DETACH)
+    {
+        Log_Close();
     }
     return TRUE;
 }

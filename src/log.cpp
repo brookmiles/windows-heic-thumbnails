@@ -11,6 +11,18 @@ size_t path_extra_cch = 10; // extension + "\" + good luck
 
 HANDLE hLog = INVALID_HANDLE_VALUE;
 
+LOG_LEVEL current_log_level = LOG_NONE;
+
+void Log_SetLevel(LOG_LEVEL lvl)
+{
+	current_log_level = lvl;
+}
+
+bool Log_ShouldLog(LOG_LEVEL lvl)
+{
+	return lvl <= current_log_level;
+}
+
 PWSTR GetFullLogPath(PCWSTR baseName)
 {
 	PWSTR result_path = NULL;
@@ -65,11 +77,6 @@ void Log_Open(PCWSTR baseName)
 		if (hLog != INVALID_HANDLE_VALUE)
 		{
 			SetFilePointer(hLog, 0, 0, FILE_END);
-
-			//WCHAR test[] = L"Hello!\r\n";
-			//DWORD dwToWrite = (DWORD)(wcslen(test) * sizeof(WCHAR));
-			//DWORD dwWritten = 0;
-			//WriteFile(hLog, test, dwToWrite, &dwWritten, NULL);
 		}
 		LocalFree(log_file_path);
 	}
@@ -102,8 +109,11 @@ WCHAR date_stamp_buf[DATE_STAMP_CCH] = {};
 const UINT TIME_STAMP_CCH = 50;
 WCHAR time_stamp_buf[TIME_STAMP_CCH] = {};
 
-void Log_Write(PCWSTR msg)
+void Log_Write(LOG_LEVEL lvl, PCWSTR msg)
 {
+	if (!Log_ShouldLog(lvl))
+		return;
+
 	if (hLog == INVALID_HANDLE_VALUE)
 		return;
 
@@ -131,8 +141,11 @@ void Log_Write(PCWSTR msg)
 const UINT LOG_FMT_CCH = 1024;
 WCHAR fmt_log_buf[LOG_FMT_CCH] = {};
 
-void Log_WriteFmt(PCWSTR fmt, ...)
+void Log_WriteFmt(LOG_LEVEL lvl, PCWSTR fmt, ...)
 {
+	if (!Log_ShouldLog(lvl))
+		return;
+
 	va_list args;
 	va_start(args, fmt);
 	HRESULT hr = StringCchVPrintfW(fmt_log_buf, LOG_FMT_CCH, fmt, args );
@@ -140,6 +153,6 @@ void Log_WriteFmt(PCWSTR fmt, ...)
 
 	if (SUCCEEDED(hr))
 	{
-		Log_Write(fmt_log_buf);
+		Log_Write(lvl, fmt_log_buf);
 	}
 }
