@@ -10,6 +10,17 @@ This small shell extension adds the ability for Windows Explorer to display thum
 
 To open or edit HEIC files you'll still need another application such as [Paint.NET](https://www.getpaint.net/) or [Krita](https://krita.org/).
 
+# Installing
+
+Requires Windows 10 (64-bit)
+
+- Install the latest [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) if needed.
+- Download the [latest release of HEICThumbnailHandler](https://github.com/brookmiles/windows-heic-thumbnails/releases/latest).
+- Extract the files `HEICThumbnailHandler.dll`, `heif.dll`, and `libde265.dll` into a new folder of your choosing.
+- Run `regsvr32 HEICThumbnailHandler.dll`
+
+Windows Explorer should now display thumbnails for HEIC files.
+
 # Building
 
 This project was built with Visual Studio 2022.
@@ -21,11 +32,3 @@ Requires [libheif](https://github.com/strukturag/libheif) which can be installed
 Optionally use the included vcpkg overlay which removes the dependancy on the x265 encoder, a 5MB dll which is not used.
 
 `vcpkg install libheif:x64-windows --overlay-ports=..\windows-heic-thumbnails\vcpkg-overlay`
-
-# Installing
-
-- Install the latest [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
-- Place the files `HEICThumbnailHandler.dll`, `heif.dll`, and `libde265.dll` in a new folder of your choosing.
-- Run `regsvr32 HEICThumbnailHandler.dll`
-
-Windows Explorer should now display thumbnails for HEIC files.
