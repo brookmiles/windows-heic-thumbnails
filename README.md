@@ -21,3 +21,11 @@ Requires [libheif](https://github.com/strukturag/libheif) which can be installed
 Optionally use the included vcpkg overlay which removes the dependancy on the x265 encoder, a 5MB dll which is not used.
 
 `vcpkg install libheif:x64-windows --overlay-ports=..\windows-heic-thumbnails\vcpkg-overlay`
+
+# Installing
+
+- Install the latest [Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
+- Place the files `HEICThumbnailHandler.dll`, `heif.dll`, and `libde265.dll` in a new folder of your choosing.
+- Run `regsvr32 HEICThumbnailHandler.dll`
+
+Windows Explorer should now display thumbnails for HEIC files.
